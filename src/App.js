@@ -4,7 +4,7 @@ import * as THREE from 'three'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, extend, useFrame, useLoader, useThree } from '@react-three/fiber';
 import { AmbientLight, BufferGeometry, Camera, Clock, HemisphereLightHelper, MeshStandardMaterial, PerspectiveCamera, PointLight, PointLightHelper, Vector3 } from 'three';
-import { Environment, OrbitControls, Plane, Stars, Text, Text3D, useCursor, useHelper, useTexture } from '@react-three/drei';
+import { Environment, GradientTexture, OrbitControls, Plane, Stars, Text, Text3D, useCursor, useHelper, useTexture } from '@react-three/drei';
 import { folder, useControls } from 'leva';
 import HauntedHouse from './hauntedHouse';
 
@@ -105,7 +105,7 @@ function Lightning() {
   return (
     <>
       <ambientLight args={["#b9d5ff", 0.12]} />
-      <OrbitControls />
+      <directionalLight args={["#ffffff", 1]} position={[1, 1, 0]} />
     </>
   )
 }
@@ -194,51 +194,36 @@ function RaycasterTesting() {
 
 
 
-  useFrame((state) => {
+  // useFrame((state) => {
 
+  //   if (object1.current && object2.current && object3.current && raycastRef.current) {
 
-    
-    
+  //     // raycastRef.current.setFromCamera(pointer, state.camera)
 
-    if (object1.current && object2.current && object3.current && raycastRef.current) {
+  //     // //Change color depending on intersections
+  //     // const objectArray = [object1.current, object2.current, object3.current];
 
-      // raycastRef.current.setFromCamera(pointer, state.camera)
+  //     // const intersections = raycastRef.current.intersectObjects(objectArray);
 
-      // //Change color depending on intersections
-      // const objectArray = [object1.current, object2.current, object3.current];
+  //     // object1.current.position.y = Math.sin(state.clock.getElapsedTime()) * 1.5;
+  //     // object2.current.position.y = Math.sin(state.clock.getElapsedTime()) * 1;
+  //     // object3.current.position.y = Math.sin(state.clock.getElapsedTime()) * 2;
 
-      // const intersections = raycastRef.current.intersectObjects(objectArray);
+  //     // for(const object of objectArray) {
+  //     //   object.material.color.set("#ff0000")
+  //     // }
 
-      // object1.current.position.y = Math.sin(state.clock.getElapsedTime()) * 1.5;
-      // object2.current.position.y = Math.sin(state.clock.getElapsedTime()) * 1;
-      // object3.current.position.y = Math.sin(state.clock.getElapsedTime()) * 2;
-
-      // for(const object of objectArray) {
-      //   object.material.color.set("#ff0000")
-      // }
-
-      // for(const intersection of intersections) {
-      //   intersection.object.material.color.set("#0000ff")
-      // }
-
-  
+  //     // for(const intersection of intersections) {
+  //     //   intersection.object.material.color.set("#0000ff")
+  //     // }
 
 
 
-    }
-
-  })
-
-  useEffect(() => {
-
-    console.log(raycastRef.current.intersectObjects([object1.current, object2.current, object3.current]))
-
-  }, [raycastRef])
-
-  useEffect(() => {
 
 
-  }, [])
+  //   }
+
+  // })
 
 
   return (
@@ -247,36 +232,36 @@ function RaycasterTesting() {
       <raycaster ref={raycastRef} args={[racyastOrigin, racyastDirection]} />
 
       <mesh
-      position-x={-2}
-      ref={object1}
-      onPointerEnter={(e) => {
-        setHovered1(true)
-        e.stopPropagation()
-      }}
-      onPointerLeave={() => setHovered1(false)}>
+        position-x={-2}
+        ref={object1}
+        onPointerEnter={(e) => {
+          setHovered1(true)
+          e.stopPropagation()
+        }}
+        onPointerLeave={() => setHovered1(false)}>
         <sphereBufferGeometry args={[0.5, 16, 16]} />
-        <meshBasicMaterial color={(hovered1) ?  "#00ff00" : "#ff0000"} />
+        <meshBasicMaterial color={(hovered1) ? "#00ff00" : "#ff0000"} />
       </mesh>
 
       <mesh
-      ref={object2}
-      onPointerEnter={(e) => {
-        setHovered2(true)
-        e.stopPropagation()
-      }}
-      onPointerLeave={() => setHovered2(false)}>
+        ref={object2}
+        onPointerEnter={(e) => {
+          setHovered2(true)
+          e.stopPropagation()
+        }}
+        onPointerLeave={() => setHovered2(false)}>
         <sphereBufferGeometry args={[0.5, 16, 16]} />
         <meshBasicMaterial color={(hovered2) ? "#00ff00" : "#ff0000"} />
       </mesh>
 
       <mesh
-      position-x={2}
-      ref={object3}
-      onPointerEnter={(e) => {
-        setHovered3(true)
-        e.stopPropagation()
-      }}
-      onPointerLeave={() => setHovered3(false)}>
+        position-x={2}
+        ref={object3}
+        onPointerEnter={(e) => {
+          setHovered3(true)
+          e.stopPropagation()
+        }}
+        onPointerLeave={() => setHovered3(false)}>
         <sphereBufferGeometry args={[0.5, 16, 16]} />
         <meshBasicMaterial color={(hovered3) ? "#00ff00" : "#ff0000"} />
       </mesh>
@@ -286,6 +271,160 @@ function RaycasterTesting() {
 
 }
 
+function ParticleBackground({ objectDistance, sections }) {
+
+  const count = 600;
+
+  const particleRef = useRef();
+
+  const particleArray = new Float32Array(count);
+
+  const { ParticleColor } = useControls({
+    ParticleColor: "#ffffff"
+  })
+
+  useEffect(() => {
+
+    for (let i = 0; i < count; i++) {
+      particleArray[i * 3] = (Math.random() - 0.5) * 10;
+      particleArray[i * 3 + 1] = objectDistance * 0.5 - Math.random() * objectDistance * sections;
+      particleArray[i * 3 + 2] = (Math.random() - 0.5) * 10;
+    }
+
+    particleRef.current.setAttribute('position', new THREE.BufferAttribute(particleArray, 3))
+
+  }, [particleRef])
+
+  return (
+    <group>
+      <points>
+        <bufferGeometry ref={particleRef} />
+        <pointsMaterial
+          sizeAttenuation
+          depthWrite={false}
+          size={0.03}
+          color={ParticleColor} />
+      </points>
+    </group>
+  )
+}
+
+
+
+
+const CustomCamera = ({ cameraRef }) => {
+  const set = useThree((state) => state.set);
+  useEffect(() => void set({ camera: cameraRef.current }), []);
+  useFrame(() => cameraRef.current.updateMatrixWorld());
+
+  return <perspectiveCamera ref={cameraRef} args={[35, window.innerWidth / window.innerHeight, 0.1, 100]} position={[0, 0, 6]} />;
+};
+
+function ToonMaterial() {
+
+  const { toonColor } = useControls({
+    toonColor: "#ffeded"
+  })
+
+  return (
+    <meshToonMaterial color={toonColor} >
+      <GradientTexture
+        magFilter={THREE.NearestFilter}
+        stops={[0, 0.5, 1]}
+        colors={["#eeeeee", "#999999", "#5b5b5b"]} />
+    </meshToonMaterial>
+  )
+
+}
+
+function ScrollBasedContent() {
+
+
+
+
+  const object1 = useRef();
+  const object2 = useRef();
+  const object3 = useRef();
+
+  const cameraGroup = useRef();
+  const cameraRef = useRef();
+
+  const sectionObjects = [object1, object2, object3]
+
+  const objectDistance = 4;
+
+  let scrollY = window.scrollY;
+  window.addEventListener('scroll', () => {
+
+    scrollY = window.scrollY
+
+  })
+
+  const cursor = {
+    x: 0,
+    y: 0
+  };
+  window.addEventListener('mousemove', (event) => {
+    cursor.x = event.clientX / window.innerWidth - 0.5
+    cursor.y = event.clientY / window.innerHeight - 0.5
+  })
+
+  let previousTime = 0;
+  useFrame((state) => {
+
+
+    state.camera.position.y = - scrollY / window.innerHeight * objectDistance;
+
+    const elapsedTime = state.clock.getElapsedTime()
+    const deltaTime = elapsedTime - previousTime;
+    previousTime = elapsedTime;
+
+    const parallaxX = cursor.x * 0.5
+    const parallaxY = - cursor.y * 0.5
+
+    cameraGroup.current.position.x += (parallaxX - cameraGroup.current.position.x) * 5 * deltaTime
+    cameraGroup.current.position.y += (parallaxY - cameraGroup.current.position.y) * 5 * deltaTime
+
+
+
+    if (object1.current && object2.current && object3.current) {
+
+      for (const object of sectionObjects) {
+        object.current.rotation.x = state.clock.getElapsedTime() * 0.1
+        object.current.rotation.y = state.clock.getElapsedTime() * 0.12
+      }
+
+    }
+
+  })
+
+  return (
+    <>
+
+      <group ref={cameraGroup}>
+        <CustomCamera cameraRef={cameraRef} />
+      </group>
+
+      <mesh ref={object1} position-y={- objectDistance * 0} position-x={2}>
+        <torusBufferGeometry args={[1, 0.4, 16, 60]} />
+        <ToonMaterial/>
+      </mesh>
+
+      <mesh ref={object2} position-y={- objectDistance * 1} position-x={-2}>
+        <coneBufferGeometry args={[1, 2, 32]} />
+        <ToonMaterial/>
+      </mesh>
+
+      <mesh ref={object3} position-y={- objectDistance * 2} position-x={2}>
+        <torusKnotBufferGeometry args={[0.8, 0.35, 100, 16]} />
+        <ToonMaterial/>
+      </mesh>
+
+      <ParticleBackground objectDistance={objectDistance} sections={sectionObjects.length} />
+    </>
+  )
+
+}
 
 
 
@@ -301,10 +440,15 @@ function App() {
     <div className="App">
       {/* <RedCube></RedCube> */}
 
+
+
       <Canvas
         className='webgl'
-        camera={{ position: [0, 1, 5], fov: 50, aspect: viewport.width / viewport.height, near: 0.1, far: 150 }}
+      // camera={{ position: [0.0, 0.0, 4.0], fov: 50, aspect: viewport.width / viewport.height, near: 0.1, far: 150 }}
       >
+
+
+
 
         {/* <ReactCube /> */}
         {/* <mesh rotation-x={-Math.PI / 2} position-y={-0.5} receiveShadow>
@@ -315,12 +459,25 @@ function App() {
         {/* <Stars radius={50} depth={50} count={1000} factor={4} saturation={0} fade speed={1} /> */}
         {/* <HauntedHouse/> */}
 
+        <ScrollBasedContent />
         <Lightning />
-        <RaycasterTesting />
+
         {/* <fog attach={'fog'} args={['#262837', 1, 15]}/>
         <color attach="background" args={["#262837"]}/> */}
 
       </Canvas>
+
+      <div className='content_container'>
+        <section>
+          <h1>CONTENT 1</h1>
+        </section>
+        <section>
+          <h1>CONTENT 2</h1>
+        </section>
+        <section>
+          <h1>CONTENT 3</h1>
+        </section>
+      </div>
 
 
 
