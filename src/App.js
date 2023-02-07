@@ -1,24 +1,51 @@
-
-import './App.css';
+import './App.css'
+import './styles/galaxy.css'
 import * as THREE from 'three'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { AmbientLight, BufferGeometry, Camera, Clock, HemisphereLightHelper, MeshStandardMaterial, PerspectiveCamera, PointLight, PointLightHelper, Vector3 } from 'three';
-import { Environment, GradientTexture, Html, OrbitControls, Plane, ScrollControls, Stars, Text, Text3D, useCursor, useGLTF, useHelper, useScroll, useTexture } from '@react-three/drei';
-import { folder, useControls } from 'leva';
-import gsap from 'gsap';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
+import {
+  AmbientLight,
+  BufferGeometry,
+  Camera,
+  Clock,
+  HemisphereLightHelper,
+  MeshStandardMaterial,
+  PerspectiveCamera,
+  PointLight,
+  PointLightHelper,
+  Vector3,
+} from 'three'
+import {
+  Environment,
+  GradientTexture,
+  Html,
+  OrbitControls,
+  Plane,
+  ScrollControls,
+  Stars,
+  Text,
+  Text3D,
+  useCursor,
+  useGLTF,
+  useHelper,
+  useScroll,
+  useTexture,
+} from '@react-three/drei'
+import { folder, useControls } from 'leva'
+import gsap from 'gsap'
 import { Physics, useBox, usePlane, useSphere } from '@react-three/cannon'
-import FoxModel from './Fox';
-import PhysicsContent from './PhysicsContent';
+import FoxModel from './Fox'
+import PhysicsContent from './PhysicsContent'
+import Galaxy from './galaxy'
+import { Charts } from './charts'
+import HauntedHouse from './hauntedHouse'
 
 // function ThreeContent() {
 
 //   const [sphereRef, setSphereRef] = useState();
 //   const [lightRef, setLightRef] = useState();
 
-
 //   const matCap = useTexture('textures/whitematcap.jpeg');
-
 
 //   const { color, roughness, metalness } = useControls({
 //     Material: folder({
@@ -38,7 +65,6 @@ import PhysicsContent from './PhysicsContent';
 //     })
 
 //   })
-
 
 //   // useFrame((state) => {
 
@@ -61,17 +87,13 @@ import PhysicsContent from './PhysicsContent';
 
 //   })
 
-
-
 //   return (
 //     <>
-
 
 //       <mesh ref={setSphereRef} castShadow>
 //         <sphereBufferGeometry args={[0.5, 64, 64]} />
 //         <meshStandardMaterial color={color} roughness={roughness} metalness={metalness}/>
 //       </mesh>
-
 
 //       <ambientLight intensity={0.3} color={0xffffff} />
 
@@ -101,8 +123,6 @@ import PhysicsContent from './PhysicsContent';
 
 // }
 
-
-
 // function Particles() {
 
 //   const count = 6000;
@@ -112,15 +132,11 @@ import PhysicsContent from './PhysicsContent';
 
 //   const particleRef = useRef();
 
-
 //   const particleTextures = useTexture({
 //     map: '/textures/magic_05.png'
 //   })
 
-
 //   useEffect(() => {
-
-
 
 //     for(let i = 0; i < count; i++) {
 //       positions[i] = (Math.random() - 0.5) * 10
@@ -137,10 +153,7 @@ import PhysicsContent from './PhysicsContent';
 //       new THREE.BufferAttribute(colors, 3)
 //     )
 
-
 //   },[particleRef.current])
-
-
 
 //   return (
 //     <points>
@@ -157,7 +170,6 @@ import PhysicsContent from './PhysicsContent';
 //   )
 
 // }
-
 
 // function RaycasterTesting() {
 
@@ -184,9 +196,6 @@ import PhysicsContent from './PhysicsContent';
 
 //   // });
 
-
-
-
 //   useFrame((state) => {
 
 //     if (object1.current && object2.current && object3.current && raycastRef.current) {
@@ -210,14 +219,9 @@ import PhysicsContent from './PhysicsContent';
 //         intersection.object.material.color.set("#0000ff")
 //       }
 
-
-
-
-
 //     }
 
 //   })
-
 
 //   return (
 //     <>
@@ -328,9 +332,6 @@ import PhysicsContent from './PhysicsContent';
 
 // function ScrollBasedContent() {
 
-
-
-
 //   const object1 = useRef();
 //   const object2 = useRef();
 //   const object3 = useRef();
@@ -346,7 +347,6 @@ import PhysicsContent from './PhysicsContent';
 //   let scrollY = window.scrollY;
 
 //   window.addEventListener('scroll', () => {
-
 
 //     scrollY = window.scrollY
 
@@ -366,7 +366,6 @@ import PhysicsContent from './PhysicsContent';
 //         }
 //         )
 //       }
-
 
 //     }
 
@@ -391,13 +390,10 @@ import PhysicsContent from './PhysicsContent';
 //     cameraGroup.current.position.x += (parallaxX - cameraGroup.current.position.x) * 5 * delta
 //     cameraGroup.current.position.y += (parallaxY - cameraGroup.current.position.y) * 5 * delta
 
-
 //     for (const object of sectionObjects) {
 //       object.current.rotation.x += delta * 0.1
 //       object.current.rotation.y += delta * 0.12
 //     }
-
-
 
 //   })
 
@@ -429,18 +425,15 @@ import PhysicsContent from './PhysicsContent';
 
 // }
 
-
 function Lightning() {
-
-  const [lightRef, setLightRef] = useState();
-
+  const [lightRef, setLightRef] = useState()
 
   return (
     <>
-      <ambientLight args={["#b9d5ff", 0.1]} />
+      <ambientLight args={['#b9d5ff', 0.1]} />
       <directionalLight
         ref={setLightRef}
-        args={["#ffffff", 1]}
+        args={['#ffffff', 1]}
         position={[6, 8, -6]}
         castShadow
         shadow-camera-near={0.1}
@@ -449,7 +442,7 @@ function Lightning() {
         shadow-camera-right={10}
         shadow-camera-top={10}
         shadow-camera-bottom={-10}
-        />
+      />
     </>
   )
 }
@@ -466,49 +459,35 @@ function Lightning() {
 //   />;
 // };
 
-
 function FoxM() {
+  const { scene } = useGLTF('public/models/Fox.gltf')
 
-  const {scene} = useGLTF('public/models/Fox.gltf');
-
-  return (
-    <primitive object={scene}/>
-  )
-
+  return <primitive object={scene} />
 }
 
 function App() {
-
   const viewport = {
     width: window.innerWidth,
-    height: window.innerHeight
-  };
+    height: window.innerHeight,
+  }
 
+  const [isShowingPopup, setIsShowingPopup] = useState(false)
 
   return (
     <div className="App">
       {/* <RedCube></RedCube> */}
 
-
-
       <Canvas
-        className='webgl'
-        camera={{ position: [5, 3, 5], fov: 50, aspect: viewport.width / viewport.height, near: 0.1, far: 150 }}
+        className="webgl"
+        camera={{ position: [6, 3, 10], fov: 50, aspect: viewport.width / viewport.height, near: 0.1, far: 150 }}
         shadows
       >
-
-
-
-
-        {/* <ReactCube /> */}
         {/* <mesh rotation-x={-Math.PI / 2} position-y={-0.5} receiveShadow>
           <planeBufferGeometry args={[7, 7, 2, 2]}/>
           <meshStandardMaterial roughness={1}/>
-        </mesh>
-        <ThreeContent /> */}
+        </mesh>*/}
         {/* <Stars radius={50} depth={50} count={1000} factor={4} saturation={0} fade speed={1} /> */}
-        {/* <HauntedHouse/> */}
-
+        <HauntedHouse />
 
         <Lightning />
 
@@ -521,8 +500,16 @@ function App() {
         </mesh> */}
 
         {/* <FoxModel scale={[0.025, 0.025, 0.025]}/> */}
-        <PhysicsContent/>
+        {/* <PhysicsContent /> */}
+        <Environment preset="city" />
+        <Charts values={[1, 2, 3, 2, 2]} setIsShowingPopup={setIsShowingPopup} />
       </Canvas>
+
+      {isShowingPopup && (
+        <div className="chart_popup" onClick={() => setIsShowingPopup(false)}>
+          <span className="chart_popup_text">Box Clicked</span>
+        </div>
+      )}
 
       {/* <div className='content_container'>
         <section>
@@ -535,13 +522,8 @@ function App() {
           <h1>CONTENT 3</h1>
         </section>
       </div> */}
-
-
-
-
-
     </div>
-  );
+  )
 }
 
-export default App;
+export default App

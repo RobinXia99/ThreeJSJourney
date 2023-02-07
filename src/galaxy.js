@@ -1,3 +1,7 @@
+import { useControls } from "leva";
+import { useEffect, useRef } from "react";
+import * as THREE from 'three'
+
 function Galaxy() {
 
     const galaxyRef = useRef();
